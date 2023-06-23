@@ -3,47 +3,61 @@ import copy
 import math
 import numpy as np
 import matplotlib.pyplot as plt
-import measure_fitness_3state
-import gradient3state
+import measure_fitness_2state
+import gradient2state
+from utils import check_intersect
 
 
 population_size=20 #number of individuals in populatoin
-geneartions=10 #number of generations to run
+generations=10 #number of generations to run
 
 #init population
 best=0
 best_i=0
 population_x=[]
 population_y=[]
+population_edges = []
 fitness_values=[]
 
 alpha=.1#learning rate
 
 #generate random population
-for i in range(population_size):
+for _ in range(population_size):
     nodes_x=[]
     nodes_y=[]
+    edges = []
     num_nodes=4
 
 
 
     for a in range(num_nodes): 
-        nodes_x.append(random.uniform(0,1)+.5)
-        nodes_y.append(random.uniform(0,1)+.5)
+            nodes_x.append(random.uniform(0,1)+.5)
+            nodes_y.append(random.uniform(0,1)+.5)
+            for i in range(a):
+                add = True
+                x,y = nodes_x[i], nodes_y[i]
+                for edge in edges:
+                    if check_intersect((nodes_x[a], nodes_y[a]), (x, y), (nodes_x[edge[0]], nodes_y[edge[0]]), (nodes_x[edge[1]], nodes_y[edge[1]])):
+                        add = False
+                        break
+                if add:
+                    edges.append((a,i))
+
     population_x.append(nodes_x)
     population_y.append(nodes_y)
+    population_edges.append(edges)
 
 #evolve
-for g in range(geneartions):
+for g in range(generations):
     print("generation",g)
    
     #measure population
     fitness_values=[]
     for i in range(population_size): 
-        fitness_values.append(measure_fitness_3state.fitness(population_x[i],population_y[i],False))
+        fitness_values.append(measure_fitness_2state.fitness(population_x[i],population_y[i],False, population_edges[i]))
 
     #if we are not done, create new genration
-    if g<(geneartions-1):
+    if g<(generations-1):
         total_fitness=0
         new_population_x=[]
         new_population_y=[]
@@ -102,7 +116,7 @@ for g in range(geneartions):
        
 
         #gradient opt best 
-        gradient3state.gradient_update(population_x[best_location],population_y[best_location])
+        gradient2state.gradient_update(population_x[best_location],population_y[best_location], population_edges[best_location])
 
         new_population_x.append(copy.deepcopy(population_x[best_location]))
         new_population_y.append(copy.deepcopy(population_y[best_location]))
@@ -122,7 +136,7 @@ for g in range(geneartions):
                 if random.uniform(0,1)>.75:
                     population_y[k][p]=population_y[k][p]+random.uniform(-alpha,alpha)
             if random.uniform(0,1)>.5:
-                gradient3state.gradient_update(population_x[k],population_y[k])
+                gradient2state.gradient_update(population_x[k],population_y[k], population_edges[k])
 
 
        
@@ -135,4 +149,4 @@ for i in range(population_size):
         max_v=fitness_values[i]
         max_i=i
 
-print(measure_fitness_3state.fitness(population_x[max_i],population_y[max_i],True))
+print(measure_fitness_2state.fitness(population_x[max_i],population_y[max_i],True, population_edges[max_i]))

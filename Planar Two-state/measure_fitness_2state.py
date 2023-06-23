@@ -5,7 +5,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 #compute fitness of individual
-def fitness(pose_x,pose_y,vis):
+def fitness(pose_x,pose_y,vis, edges):
     num_nodes=len(pose_x)
     nodes_x=copy.deepcopy(pose_x)
     nodes_y=copy.deepcopy(pose_y)    
@@ -34,13 +34,14 @@ def fitness(pose_x,pose_y,vis):
     #put a spring between all nodes
     for a in range(num_nodes):
         for b in range(num_nodes): 
-            if a<b:
-                spring_array[a][b]=0  
-                if a!=b:            
-                    if random.uniform(0,1)>0.0:#between all nodes
-                        spring_array[a][b]=math.sqrt((nodes_x[a]-nodes_x[b])**2+(nodes_y[a]-nodes_y[b])**2)
-            else:
-                spring_array[a][b]=spring_array[b][a]
+            if (a,b) in edges or (b,a) in edges:
+                if a<b:
+                    spring_array[a][b]=0  
+                    if a!=b:            
+                        if random.uniform(0,1)>0.0:#between all nodes
+                            spring_array[a][b]=math.sqrt((nodes_x[a]-nodes_x[b])**2+(nodes_y[a]-nodes_y[b])**2)
+                else:
+                    spring_array[a][b]=spring_array[b][a]
 
     #data used to measer distance between all nodes to compute change
     distance_state0=[[0 for i in range(num_nodes)] for j in range(num_nodes)]
