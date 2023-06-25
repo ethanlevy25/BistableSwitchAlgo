@@ -47,7 +47,24 @@ def check_all_edges_from_node(node, nodes_x, nodes_y, edges):
                 if ii == i: continue
                 if check_intersect((nodes_x[edge[0]], nodes_y[edge[0]]), (nodes_x[edge[1]], nodes_y[edge[1]]), (nodes_x[edges[ii][0]], nodes_y[edges[ii][0]]), (nodes_x[edges[ii][1]], nodes_y[edges[ii][1]])):
                     return False
-    return True            
+    return True 
+
+def intersecting(nodes_x, nodes_y, edges):
+    '''
+    Parameters:
+    nodes_x, nodes_y: Lists representing the x and y coordinates of the nodes.
+    edges: List of tuples representing the edges. Each tuple contains the indices of the nodes that form the edge.
+
+    Returns:
+    True if any edges intersect with any other edges, False otherwise.
+    '''
+    for node in range(len(nodes_x)):
+        if not check_all_edges_from_node(node, nodes_x, nodes_y, edges):
+            return True
+    return False
+
+
+
 
 
 
