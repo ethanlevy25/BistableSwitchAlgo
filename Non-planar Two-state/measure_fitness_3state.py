@@ -5,7 +5,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 #compute fitness of individual
-def fitness(pose_x,pose_y,vis):
+def fitness(pose_x,pose_y,vis, adj_mat):
     num_nodes=len(pose_x)
     nodes_x=copy.deepcopy(pose_x)
     nodes_y=copy.deepcopy(pose_y)    
@@ -36,7 +36,7 @@ def fitness(pose_x,pose_y,vis):
         for b in range(num_nodes): 
             if a<b:
                 spring_array[a][b]=0  
-                if a!=b:            
+                if a!=b and adj_mat[a][b]==1:            
                     if random.uniform(0,1)>0.0:#between all nodes
                         spring_array[a][b]=math.sqrt((nodes_x[a]-nodes_x[b])**2+(nodes_y[a]-nodes_y[b])**2)
             else:

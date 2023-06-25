@@ -29,3 +29,12 @@ def intersects_with_any(node1, node2, nodes_x, nodes_y, edges):
         if intersect((nodes_x[node1], nodes_y[node1]), (nodes_x[node2], nodes_y[node2]), (nodes_x[edges[i][0]], nodes_y[edges[i][0]]), (nodes_x[edges[i][1]], nodes_y[edges[i][1]])):
             return True
     return False
+
+def planar_check(node, nodes_x, nodes_y, edges):
+    for i in range(len(edges)):
+        if node in edges[i]:
+            for ii in range(len(edges)):
+                if ii == i: continue
+                if intersects_with_any(edges[i][0], edges[i][1], nodes_x, nodes_y, edges):
+                    return False
+    return True

@@ -9,7 +9,7 @@ import utils
 
 
 population_size=20 #number of individuals in populatoin
-generations=5 #number of generations to run
+generations=10 #number of generations to run
 
 #init population
 best=0
@@ -59,7 +59,7 @@ for g in range(generations):
     #measure population
     fitness_values=[]
     for i in range(population_size): 
-        fitness_values.append(measure_fitness_3state.fitness(population_x[i],population_y[i],False))
+        fitness_values.append(measure_fitness_3state.fitness(population_x[i],population_y[i],False, adjacency_matrix))
 
     #if we are not done, create new genration
     if g<(generations-1):
@@ -121,7 +121,7 @@ for g in range(generations):
        
 
         #gradient opt best 
-        gradient3state.gradient_update(population_x[best_location],population_y[best_location])
+        gradient3state.gradient_update(population_x[best_location],population_y[best_location], adjacency_matrix, edges)
 
         new_population_x.append(copy.deepcopy(population_x[best_location]))
         new_population_y.append(copy.deepcopy(population_y[best_location]))
@@ -141,7 +141,7 @@ for g in range(generations):
                 if random.uniform(0,1)>.75:
                     population_y[k][p]=population_y[k][p]+random.uniform(-alpha,alpha)
             if random.uniform(0,1)>.5:
-                gradient3state.gradient_update(population_x[k],population_y[k])
+                gradient3state.gradient_update(population_x[k],population_y[k], adjacency_matrix, edges)
 
 
        
@@ -154,4 +154,4 @@ for i in range(population_size):
         max_v=fitness_values[i]
         max_i=i
 
-print(measure_fitness_3state.fitness(population_x[max_i],population_y[max_i],True))
+print(measure_fitness_3state.fitness(population_x[max_i],population_y[max_i],True, adjacency_matrix))

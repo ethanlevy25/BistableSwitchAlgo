@@ -4,15 +4,16 @@ import math
 import numpy as np
 import matplotlib.pyplot as plt
 import measure_fitness_3state
+import utils
 
 
 
 
 #use gradient search to optimize individual
-def gradient_update(nodes_x,nodes_y):
+def gradient_update(nodes_x,nodes_y, adj_mat, edges):
     num_nodes=len(nodes_x)
         
-    current_fit=measure_fitness_3state.fitness(nodes_x,nodes_y,False)
+    current_fit=measure_fitness_3state.fitness(nodes_x,nodes_y,False, adj_mat)
 
     best_value=current_fit
     best_x=copy.deepcopy(nodes_x)
@@ -29,41 +30,45 @@ def gradient_update(nodes_x,nodes_y):
             temp_x=copy.deepcopy(best_x)
             temp_y=copy.deepcopy(best_y)
             temp_x[a]=temp_x[a]+step
-            temp_fit=measure_fitness_3state.fitness(temp_x,temp_y,False)
-            if temp_fit>best_value:
-                best_value=temp_fit
-                best_x=copy.deepcopy(temp_x)
-                best_y=copy.deepcopy(temp_y)
+            if utils.planar_check(a, temp_x, temp_y, edges):
+                temp_fit=measure_fitness_3state.fitness(temp_x,temp_y,False, adj_mat)
+                if temp_fit>best_value:
+                    best_value=temp_fit
+                    best_x=copy.deepcopy(temp_x)
+                    best_y=copy.deepcopy(temp_y)
 
             #-x step 
             temp_x=copy.deepcopy(best_x)
             temp_y=copy.deepcopy(best_y)
             temp_x[a]=temp_x[a]-step
-            temp_fit=measure_fitness_3state.fitness(temp_x,temp_y,False)
-            if temp_fit>best_value:
-                best_value=temp_fit
-                best_x=copy.deepcopy(temp_x)
-                best_y=copy.deepcopy(temp_y)
+            if utils.planar_check(a, temp_x, temp_y, edges):
+                temp_fit=measure_fitness_3state.fitness(temp_x,temp_y,False, adj_mat)
+                if temp_fit>best_value:
+                    best_value=temp_fit
+                    best_x=copy.deepcopy(temp_x)
+                    best_y=copy.deepcopy(temp_y)
 
             #+y step 
             temp_x=copy.deepcopy(best_x)
             temp_y=copy.deepcopy(best_y)
             temp_y[a]=temp_y[a]+step
-            temp_fit=measure_fitness_3state.fitness(temp_x,temp_y,False)
-            if temp_fit>best_value:
-                best_value=temp_fit
-                best_x=copy.deepcopy(temp_x)
-                best_y=copy.deepcopy(temp_y)
+            if utils.planar_check(a, temp_x, temp_y, edges):
+                temp_fit=measure_fitness_3state.fitness(temp_x,temp_y,False, adj_mat)
+                if temp_fit>best_value:
+                    best_value=temp_fit
+                    best_x=copy.deepcopy(temp_x)
+                    best_y=copy.deepcopy(temp_y)
 
             #-y step 
             temp_x=copy.deepcopy(best_x)
             temp_y=copy.deepcopy(best_y)
             temp_y[a]=temp_y[a]-step
-            temp_fit=measure_fitness_3state.fitness(temp_x,temp_y,False)
-            if temp_fit>best_value:
-                best_value=temp_fit
-                best_x=copy.deepcopy(temp_x)
-                best_y=copy.deepcopy(temp_y)
+            if utils.planar_check(a, temp_x, temp_y, edges):
+                temp_fit=measure_fitness_3state.fitness(temp_x,temp_y,False, adj_mat)
+                if temp_fit>best_value:
+                    best_value=temp_fit
+                    best_x=copy.deepcopy(temp_x)
+                    best_y=copy.deepcopy(temp_y)
             
 
 
