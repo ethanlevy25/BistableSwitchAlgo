@@ -1,72 +1,51 @@
-import matplotlib.pyplot as plt
-import random
 
-def ccw(A, B, C):
-    '''
-    Parameters:
-    A, B, C: tuples representing the x and y coordinates of the points.
 
-    Returns:
-    A boolean representing whether the path from A to B to C is counter-clockwise. 
-    True if the path is counter-clockwise (i.e., point C lies to the left of the line from A to B when moving from A to B),
-    False if it's clockwise or collinear (i.e., point C lies to the right or on the same line).
-    '''
-    return (C[1]-A[1]) * (B[0]-A[0]) > (B[1]-A[1]) * (C[0]-A[0])
 
-# Return true if line segments AB and CD intersect
-def check_intersect(A, B, C, D):
-    '''
-    Parameters:
-    A, B: tuples representing the x and y coordinates of the end points of line segment AB.
-    C, D: tuples representing the x and y coordinates of the end points of line segment CD.
+def connected(adj_mat):
+    def dfs(adj_mat, start):
+        counter = 0
+        visited = set()
+        stack = [start]
+        while stack:
+            node = stack.pop()
+            if node in visited:
+                continue
+            visited.add(node)
+            counter+=1
+            for i in range(len(adj_mat)):
+                if adj_mat[node][i] == 1:
+                    stack.append(i)
+        return counter
+    return dfs(adj_mat, 0) == len(adj_mat)
 
-    Returns:
-    A boolean representing whether line segment AB intersects with line segment CD.
-    '''
-    # Check if line segments are identical
-    if (A == C and B == D) or (A == D and B == C):
-        return True
+def ccw(A,B,C):
+    return (C[1]-A[1])*(B[0]-A[0]) > (B[1]-A[1])*(C[0]-A[0])
 
-    # Check if any points are equal
-    if A == C or A == D or B == C or B == D:
-        return False
+def intersect(A,B,C,D):
+    return ccw(A,C,D) != ccw(B,C,D) and ccw(A,B,C) != ccw(A,B,D)
 
-    # Then do the original intersection check
-    return ccw(A, C, D) != ccw(B, C, D) and ccw(A, B, C) != ccw(A, B, D)
-
-def check_all_edges_from_node(node, nodes_x, nodes_y, edges):
-    '''
-    Returns true if no edges from node intersect with any other edges
-    '''
-    #iterate through every edge
+def intersects_with_any(node1, node2, nodes_x, nodes_y, edges):
     for i in range(len(edges)):
-        #if modified node is a part of the edge
-        edge = edges[i]
-        if node in edge:
-            for ii in range(len(edges)):
-                if ii == i: continue
-                if check_intersect((nodes_x[edge[0]], nodes_y[edge[0]]), (nodes_x[edge[1]], nodes_y[edge[1]]), (nodes_x[edges[ii][0]], nodes_y[edges[ii][0]]), (nodes_x[edges[ii][1]], nodes_y[edges[ii][1]])):
-                    return False
-    return True 
-
-def intersecting(nodes_x, nodes_y, edges):
-    '''
-    Parameters:
-    nodes_x, nodes_y: Lists representing the x and y coordinates of the nodes.
-    edges: List of tuples representing the edges. Each tuple contains the indices of the nodes that form the edge.
-
-    Returns:
-    True if any edges intersect with any other edges, False otherwise.
-    '''
-    for node in range(len(nodes_x)):
-        if not check_all_edges_from_node(node, nodes_x, nodes_y, edges):
+        if intersect((nodes_x[node1], nodes_y[node1]), (nodes_x[node2], nodes_y[node2]), (nodes_x[edges[i][0]], nodes_y[edges[i][0]]), (nodes_x[edges[i][1]], nodes_y[edges[i][1]])):
             return True
     return False
 
+def planar_check(node, nodes_x, nodes_y, edges):
+    '''
+    Given a node and the components of a graph, returns true if that node has no edges which intersect with other edges
+    '''
+    for i in range(len(edges)):
+        if node in edges[i] and intersects_with_any(edges[i][0], edges[i][1], nodes_x, nodes_y, edges):
+            return False
+    return True
 
-
-
-
-
-
+def is_planar(nodes_x, nodes_y, edges):
+    for i in range(len(edges)):
+        for ii in range(i, len(edges)):
+            a = (nodes_x[edges[i][0]], nodes_y[edges[i][0]])
+            b = (nodes_x[edges[i][1]], nodes_y[edges[i][1]])
+            c = (nodes_x[edges[ii][0]], nodes_y[edges[ii][0]])
+            d = (nodes_x[edges[ii][1]], nodes_y[edges[ii][1]])
+            if intersect(a,b,c,d): return False
+    return True        
 
