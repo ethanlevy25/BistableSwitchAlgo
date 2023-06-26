@@ -27,12 +27,12 @@ def angle_between_vectors(v1, v2):
     v2_u = v2 / np.linalg.norm(v2)
     return np.arccos(np.clip(np.dot(v1_u, v2_u), -1.0, 1.0))
 
-def intersect(A,B,C,D, epsilon=1e-6):
+def intersect(A,B,C,D, epsilon=1e-3):
     ab = np.array([B[0]-A[0], B[1]-A[1]])
     cd = np.array([D[0]-C[0], D[1]-C[1]])
     angle = angle_between_vectors(ab, cd)
     if abs(angle - np.pi) < epsilon:
-        return False  # The edges are almost collinear
+        return True  # The edges are almost collinear
     else:
         return ccw(A,C,D) != ccw(B,C,D) and ccw(A,B,C) != ccw(A,B,D)
 
