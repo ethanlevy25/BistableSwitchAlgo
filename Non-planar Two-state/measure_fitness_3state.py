@@ -3,9 +3,10 @@ import copy
 import math
 import numpy as np
 import matplotlib.pyplot as plt
+import utils
 
 #compute fitness of individual
-def fitness(pose_x,pose_y,vis, adj_mat):
+def fitness(pose_x,pose_y,vis, adj_mat, edges):
     num_nodes=len(pose_x)
     nodes_x=copy.deepcopy(pose_x)
     nodes_y=copy.deepcopy(pose_y)    
@@ -16,9 +17,11 @@ def fitness(pose_x,pose_y,vis, adj_mat):
     acc_y=[]
     force_x=[]
     force_y=[]
+    spring_points = edges[0]
 
     #flag used if individual is too big, set fitness to 0
     too_big_flag=0
+    intersection_flag=0
     
     first_time_in_state=1
     for a in range(num_nodes): 
@@ -31,6 +34,8 @@ def fitness(pose_x,pose_y,vis, adj_mat):
         force_x.append(0)
         force_y.append(0)
 
+    num_edges = len(edges)
+    spring_counter = 0
     #put a spring between all nodes
     for a in range(num_nodes):
         for b in range(num_nodes): 
@@ -39,16 +44,14 @@ def fitness(pose_x,pose_y,vis, adj_mat):
                 if a!=b and adj_mat[a][b]==1:            
                     if random.uniform(0,1)>0.0:#between all nodes
                         spring_array[a][b]=math.sqrt((nodes_x[a]-nodes_x[b])**2+(nodes_y[a]-nodes_y[b])**2)
+                        spring_counter+=1
             else:
                 spring_array[a][b]=spring_array[b][a]
+    if num_edges != spring_counter: print("ALARM ALARM ALARM")            
 
     #data used to measer distance between all nodes to compute change
     distance_state0=[[0 for i in range(num_nodes)] for j in range(num_nodes)]
     distance_state1=[[0 for i in range(num_nodes)] for j in range(num_nodes)]    
-
-
-
-
 
     t         = 0      # current time of the simulation
     dt        = 0.01    # timestep
@@ -110,7 +113,10 @@ def fitness(pose_x,pose_y,vis, adj_mat):
                     distance_state0[a][b]=math.sqrt((nodes_x[a]-nodes_x[b])**2+(nodes_y[a]-nodes_y[b])**2)
                     if distance_state0[a][b]>0.95:
                         too_big_flag=1
+            if not utils.is_planar(nodes_x, nodes_y, edges): return 0            
             if plotRealTime :
+                # print(nodes_x)
+                # print(nodes_y)
                 #print out image
                 plt.subplot(411)
                 x_values=[]
@@ -141,7 +147,7 @@ def fitness(pose_x,pose_y,vis, adj_mat):
 
                 x_values_link=[]
                 y_values_link=[]
-                for x in range(2):
+                for x in spring_points:
                     x_values.append(nodes_x[x])
                     y_values.append(nodes_y[x])
             
@@ -155,8 +161,12 @@ def fitness(pose_x,pose_y,vis, adj_mat):
                     distance_state1[a][b]=math.sqrt((nodes_x[a]-nodes_x[b])**2+(nodes_y[a]-nodes_y[b])**2)
                     if distance_state1[a][b]>0.95:
                         too_big_flag=1
+            if not utils.is_planar(nodes_x, nodes_y, edges): return 0      
 
             if plotRealTime :           #print out image
+
+                # print(nodes_x)
+                # print(nodes_y)
                 plt.subplot(412)
                 #print out image
             
@@ -188,26 +198,29 @@ def fitness(pose_x,pose_y,vis, adj_mat):
 
                 x_values_link=[]
                 y_values_link=[]
-                for x in range(2):
+                for x in spring_points:
                     x_values.append(nodes_x[x])
                     y_values.append(nodes_y[x])
             
                 plt.plot(x_values,y_values,'r')
                 plt.savefig("test.png")
+
+
             #print("good ending-------------------")
             end_loop=1
      
         
         #actuate one spring
-        if state==0:#expanding    
-            current_distance=math.sqrt((nodes_x[0]-nodes_x[1])**2+(nodes_y[0]-nodes_y[1])**2)
+        if state==0:#expanding
+            a,b = spring_points    
+            current_distance=math.sqrt((nodes_x[a]-nodes_x[b])**2+(nodes_y[a]-nodes_y[b])**2)
             force_mag=-spring_coeff*(.1-current_distance)#negitive force pulls nodes together   
-            f_x_component_norm=(nodes_x[0]-nodes_x[1])/current_distance
-            f_y_component_norm=(nodes_y[0]-nodes_y[1])/current_distance 
-            force_x[0] = force_x[0]-f_x_component_norm*force_mag
-            force_y[0] = force_y[0]-f_y_component_norm*force_mag
-            force_x[1] = force_x[1]+f_x_component_norm*force_mag
-            force_y[1] = force_y[1]+f_y_component_norm*force_mag            
+            f_x_component_norm=(nodes_x[a]-nodes_x[b])/current_distance
+            f_y_component_norm=(nodes_y[a]-nodes_y[b])/current_distance 
+            force_x[a] = force_x[a]-f_x_component_norm*force_mag
+            force_y[a] = force_y[b]-f_y_component_norm*force_mag
+            force_x[b] = force_x[b]+f_x_component_norm*force_mag
+            force_y[b] = force_y[b]+f_y_component_norm*force_mag            
        
 
 
@@ -243,6 +256,8 @@ def fitness(pose_x,pose_y,vis, adj_mat):
         for n in range(num_nodes):
             nodes_x[n]=nodes_x[n]+vel_x[n]*dt
             nodes_y[n]=nodes_y[n]+vel_y[n]*dt
+
+        if not utils.is_planar(nodes_x, nodes_y, edges): return 0    
 
 
 
@@ -288,7 +303,7 @@ def fitness(pose_x,pose_y,vis, adj_mat):
 
             x_values_link=[]
             y_values_link=[]
-            for x in range(2):
+            for x in spring_points:
                 x_values.append(nodes_x[x])
                 y_values.append(nodes_y[x])
         
@@ -304,7 +319,6 @@ def fitness(pose_x,pose_y,vis, adj_mat):
     #compute fitness
     dist_diff01=0
 
-
     for a in range(num_nodes):
         for b in range(num_nodes):
             dist_diff01=dist_diff01+abs(distance_state0[a][b]-distance_state1[a][b])
@@ -315,7 +329,7 @@ def fitness(pose_x,pose_y,vis, adj_mat):
 
 
     #too_big_flag=0
-    if too_big_flag==0 and kill==0:
+    if too_big_flag==0 and kill==0 and intersection_flag==0:
         return dist_diff01
     else:
         return 0
