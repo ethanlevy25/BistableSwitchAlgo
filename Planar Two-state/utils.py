@@ -30,14 +30,6 @@ def intersects_with_any(node1, node2, nodes_x, nodes_y, edges):
             return True
     return False
 
-def planar_check(node, nodes_x, nodes_y, edges):
-    '''
-    Given a node and the components of a graph, returns true if that node has no edges which intersect with other edges
-    '''
-    for i in range(len(edges)):
-        if node in edges[i] and intersects_with_any(edges[i][0], edges[i][1], nodes_x, nodes_y, edges):
-            return False
-    return True
 
 def is_planar(nodes_x, nodes_y, edges):
     for i in range(len(edges)):
