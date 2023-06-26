@@ -9,8 +9,8 @@ import utils
 
 
 
-population_size=40 #number of individuals in populatoin
-generations=40 #number of generations to run
+population_size=20 #number of individuals in populatoin
+generations=10 #number of generations to run
 
 #init population
 best=0
