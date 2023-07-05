@@ -5,7 +5,10 @@ import numpy as np
 import matplotlib.pyplot as plt
 import measure_fitness_2state
 import gradient2state
+import csv
 import utils
+import pandas as pd
+from datetime import datetime
 
 
 
@@ -227,5 +230,23 @@ for i in range(population_size):
     if fitness_values[i]>max_v:
         max_v=fitness_values[i]
         max_i=i
+max_fitness = measure_fitness_2state.fitness(population_x[max_i],population_y[max_i],True, population_matrices[max_i], population_edges[max_i], population_springs[max_i])
+print(max_fitness)
 
-print(measure_fitness_2state.fitness(population_x[max_i],population_y[max_i],True, population_matrices[max_i], population_edges[max_i], population_springs[max_i]))
+current_date_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+data = {
+    "date_time": current_date_time,
+    "nodes_x": [population_x[max_i]],
+    "nodes_y": [population_y[max_i]],
+    "edges": [population_edges[max_i]],
+    "adjacency_matrix": [population_matrices[max_i]],
+    "spring_coeff": [population_springs[max_i]],
+    "fitness": max_fitness
+}
+
+df = pd.DataFrame(data)
+
+# Write DataFrame to CSV
+with open('results.csv', 'a') as f:
+    df.to_csv(f, header=f.tell() == 0, index=False)
