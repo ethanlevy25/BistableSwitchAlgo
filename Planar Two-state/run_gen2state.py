@@ -12,6 +12,9 @@ import utils
 population_size=20 #number of individuals in populatoin
 generations=10 #number of generations to run
 
+spring_min = 5
+spring_max = 15
+
 #init population
 best=0
 best_i=0
@@ -19,7 +22,9 @@ population_x=[]
 population_y=[]
 population_edges=[]
 population_matrices=[]
+population_springs = []
 fitness_values=[]
+
 
 alpha=.1#learning rate
 
@@ -56,7 +61,7 @@ for i in range(population_size):
             adjacency_matrix[node2][node1] = 1
             edges.append((node1, node2))
 
-
+    population_springs.append(random.uniform(spring_min, spring_max))
     population_x.append(nodes_x)
     population_y.append(nodes_y)
     population_edges.append(edges)
@@ -69,7 +74,7 @@ for g in range(generations):
     #measure population
     fitness_values=[]
     for i in range(population_size): 
-        fitness_values.append(measure_fitness_2state.fitness(population_x[i],population_y[i],False, population_matrices[i], population_edges[i]))
+        fitness_values.append(measure_fitness_2state.fitness(population_x[i],population_y[i],False, population_matrices[i], population_edges[i], population_springs[i]))
 
     #if we are not done, create new genration
     if g<(generations-1):
@@ -78,6 +83,7 @@ for g in range(generations):
         new_population_y=[]
         new_population_edges=[]
         new_population_matrices=[]
+        new_population_springs = []
 
         best_found=0
         best_location=0
@@ -120,6 +126,9 @@ for g in range(generations):
             child_x=[]
             child_y=[]
             split=random.randint(0,num_nodes-1)
+
+            
+
             for sp in range(num_nodes):
                 if sp<split:
                     child_x.append(population_x[sample1][sp])
@@ -129,7 +138,7 @@ for g in range(generations):
                     child_y.append(population_y[sample2][sp])
             
             adjacency_matrix = [[0 for j in range(num_nodes)] for i in range(num_nodes)]
-            edges =[]
+            edges = []
             # possible_edges = []
             # for edge in population_edges[sample1]:
             #     if edge[0] < split or edge[1] < split:
@@ -162,25 +171,30 @@ for g in range(generations):
                     adjacency_matrix[node2][node1] = 1
                     edges.append((node1, node2))    
 
+            new_spring_coefficient = split/num_nodes*population_springs[sample1] + (1-split/num_nodes)*population_springs[sample2]
             new_population_x.append(copy.deepcopy(child_x))
             new_population_y.append(copy.deepcopy(child_y))
             new_population_edges.append(copy.deepcopy(edges))
             new_population_matrices.append(copy.deepcopy(adjacency_matrix))
+            new_population_springs.append(new_spring_coefficient)
+            
        
 
         #gradient opt best 
-        gradient2state.gradient_update(population_x[best_location],population_y[best_location], population_matrices[best_location], population_edges[best_location])
+        gradient2state.gradient_update(population_x[best_location],population_y[best_location], population_matrices[best_location], population_edges[best_location], population_springs[best_location])
 
         new_population_x.append(copy.deepcopy(population_x[best_location]))
         new_population_y.append(copy.deepcopy(population_y[best_location]))
         new_population_edges.append(copy.deepcopy(population_edges[best_location]))
         new_population_matrices.append(copy.deepcopy(population_matrices[best_location]))
+        new_population_springs.append(population_springs[best_location])
 
 
         population_x=copy.deepcopy(new_population_x)
         population_y=copy.deepcopy(new_population_y)
         population_edges=copy.deepcopy(new_population_edges)
         population_matrices = copy.deepcopy(new_population_matrices)
+        population_springs = copy.deepcopy(new_population_springs)
 
       
 
@@ -201,7 +215,7 @@ for g in range(generations):
                     if utils.is_planar(population_x[k], temp_nodes_y, population_edges[k]):
                         population_y[k][p] = temp_y
             if random.uniform(0,1)>.5:
-                gradient2state.gradient_update(population_x[k],population_y[k], population_matrices[k], population_edges[k])
+                gradient2state.gradient_update(population_x[k],population_y[k], population_matrices[k], population_edges[k], population_springs[k])
 
 
        
@@ -214,4 +228,4 @@ for i in range(population_size):
         max_v=fitness_values[i]
         max_i=i
 
-print(measure_fitness_2state.fitness(population_x[max_i],population_y[max_i],True, population_matrices[max_i], population_edges[max_i]))
+print(measure_fitness_2state.fitness(population_x[max_i],population_y[max_i],True, population_matrices[max_i], population_edges[max_i], population_springs[max_i]))

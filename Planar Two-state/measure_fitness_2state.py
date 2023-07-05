@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 import utils
 
 #compute fitness of individual
-def fitness(pose_x,pose_y,vis, adj_mat, edges):
+def fitness(pose_x,pose_y,vis, adj_mat, edges, spring_coeff = 10):
     num_nodes=len(pose_x)
     nodes_x=copy.deepcopy(pose_x)
     nodes_y=copy.deepcopy(pose_y)    
@@ -54,7 +54,7 @@ def fitness(pose_x,pose_y,vis, adj_mat, edges):
     t         = 0      # current time of the simulation
     dt        = 0.01    # timestep
     Nt        = 601    # number of timesteps
-    spring_coeff = 10  # Hooke's law spring coefficient
+    # spring_coeff = 10  # Hooke's law spring coefficient
     gravity   = -0.0   # strength of gravity
     plotRealTime = vis # switch on for plotting as the simulation goes along
     box_size=2
