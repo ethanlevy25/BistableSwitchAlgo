@@ -23,6 +23,8 @@ def fitness(pose_x,pose_y,vis, adj_mat, edges, spring_coeff = 10):
 
     #flag used if individual is too big, set fitness to 0
     too_big_flag=0
+    too_close_val = 0.001
+    too_close_flag = 0
     intersection_flag=0
     
     first_time_in_state=1
@@ -111,6 +113,8 @@ def fitness(pose_x,pose_y,vis, adj_mat, edges, spring_coeff = 10):
                     distance_state0[a][b]=math.sqrt((nodes_x[a]-nodes_x[b])**2+(nodes_y[a]-nodes_y[b])**2)
                     if distance_state0[a][b]>0.95:
                         too_big_flag=1
+                    if a!=b and distance_state0[a][b]< too_close_val:
+                        too_close_flag = 1  
             if not utils.is_planar(nodes_x, nodes_y, edges): return 0            
             if plotRealTime :
                 # print(nodes_x)
@@ -159,6 +163,8 @@ def fitness(pose_x,pose_y,vis, adj_mat, edges, spring_coeff = 10):
                     distance_state1[a][b]=math.sqrt((nodes_x[a]-nodes_x[b])**2+(nodes_y[a]-nodes_y[b])**2)
                     if distance_state1[a][b]>0.95:
                         too_big_flag=1
+                    if a!=b and distance_state0[a][b]< too_close_val:
+                        too_close_flag = 1     
             if not utils.is_planar(nodes_x, nodes_y, edges): return 0      
 
             if plotRealTime :           #print out image
@@ -327,7 +333,7 @@ def fitness(pose_x,pose_y,vis, adj_mat, edges, spring_coeff = 10):
 
 
     #too_big_flag=0
-    if too_big_flag==0 and kill==0 and intersection_flag==0:
+    if too_big_flag==0 and kill==0 and intersection_flag==0 and too_close_flag == 0:
         return dist_diff01
     else:
         return 0
