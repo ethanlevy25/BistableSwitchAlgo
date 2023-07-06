@@ -17,6 +17,7 @@ generations=10 #number of generations to run
 
 spring_min = 5
 spring_max = 15
+edges_per_node = 2
 
 #init population
 best=0
@@ -39,32 +40,42 @@ for i in range(population_size):
     num_nodes=4
     edges=[]
     adjacency_matrix = [[0 for j in range(num_nodes)] for i in range(num_nodes)]
+    spring_coeff = random.uniform(spring_min, spring_max)
+
+    fitness = 0
+    while fitness == 0:
+
+        edges=[]
+        adjacency_matrix = [[0 for j in range(num_nodes)] for i in range(num_nodes)]
+
+        for a in range(num_nodes): 
+            nodes_x.append(random.uniform(0,1)+.5)
+            nodes_y.append(random.uniform(0,1)+.5)
+
+        edge_count = 0
+        while len(edges)<num_nodes*edges_per_node:
+            a, b = random.randint(0, num_nodes-1), random.randint(0,num_nodes-1)
+            node1, node2 = min(a, b), max(a,b)
+            if node1 != node2 and adjacency_matrix[node1][node2] != 1:
+                adjacency_matrix[node1][node2] = 1
+                adjacency_matrix[node2][node1] = 1
+                edges.append((node1,node2))
 
 
+            
+        # for node1 in range(num_nodes):
+        #     for node2 in range(num_nodes):
+        #         #checks for: trying to make edge with itself, edge already created, or intersection created
+        #         if node1 == node2 or adjacency_matrix[node1][node2] == 1 or utils.intersects_with_any(node1, node2, nodes_x, nodes_y, edges):
+        #             continue
+        #         adjacency_matrix[node1][node2] = 1
+        #         adjacency_matrix[node2][node1] = 1
+        #         edges.append((node1, node2))
 
-    for a in range(num_nodes): 
-        nodes_x.append(random.uniform(0,1)+.5)
-        nodes_y.append(random.uniform(0,1)+.5)
+        if not utils.connected(adjacency_matrix): fitness = 0
+        else: fitness = measure_fitness_2state.fitness(nodes_x, nodes_y, False, adjacency_matrix, edges, spring_coeff)
 
-    # while not utils.connected(adjacency_matrix):
-    #     node1, node2 = random.randint(0, num_nodes-1), random.randint(0, num_nodes-1)
-    #     if node1 == node2 or adjacency_matrix[node1][node2] == 1 or utils.intersects_with_any(node1, node2, nodes_x, nodes_y, edges):
-    #         continue
-    #     adjacency_matrix[node1][node2] = 1
-    #     adjacency_matrix[node2][node1] = 1
-    #     edges.append((node1, node2))
-
-    #for each node in the graph, adds an edge from it to every other node as long as the edge wouldn't create an intersection
-    for node1 in range(num_nodes):
-        for node2 in range(num_nodes):
-            #checks for: trying to make edge with itself, edge already created, or intersection created
-            if node1 == node2 or adjacency_matrix[node1][node2] == 1 or utils.intersects_with_any(node1, node2, nodes_x, nodes_y, edges):
-                continue
-            adjacency_matrix[node1][node2] = 1
-            adjacency_matrix[node2][node1] = 1
-            edges.append((node1, node2))
-
-    population_springs.append(random.uniform(spring_min, spring_max))
+    population_springs.append(spring_coeff)
     population_x.append(nodes_x)
     population_y.append(nodes_y)
     population_edges.append(edges)
