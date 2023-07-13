@@ -338,13 +338,14 @@ def fitness(pose_x,pose_y,vis, adj_mat, edges, spring_dict):
     #print("distance",dist_diff01,dist_diff02,dist_diff12)
     intersection_count = sum(intersections)
 
-    #too_big_flag=0
     too_close_penalty = 1
     if too_close_flag: too_close_penalty = 0.25
     dist_diff01*=too_close_penalty
+    
     if too_big_flag==0 and kill==0:
         if intersection_count>0:
             percent_planar = ((len(edges)-intersection_count)/len(edges))
+            
             if percent_planar == 0: percent_planar = 1/len(edges)
             if plotRealTime: print(percent_planar)
             return intersection_penalty * dist_diff01 * percent_planar

@@ -13,7 +13,7 @@ from datetime import datetime
 
 
 population_size=20 #number of individuals in populatoin
-generations=5 #number of generations to run
+generations=10 #number of generations to run
 
 spring_min = 5
 spring_max = 15
@@ -81,7 +81,7 @@ for g in range(generations):
     fitness_values=[]
     for i in range(population_size): 
         fitness_values.append(measure_fitness_2state.fitness(population_x[i],population_y[i],False, population_matrices[i], population_edges[i], population_springs[i]))
-
+    # print(fitness_values)
     #if we are not done, create new genration
     if g<(generations-1):
         total_fitness=0
