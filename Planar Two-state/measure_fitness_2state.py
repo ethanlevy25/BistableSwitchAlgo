@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 import utils
 
 #compute fitness of individual
-def fitness(pose_x,pose_y,vis, adj_mat, edges, spring_coeff = 10):
+def fitness(pose_x,pose_y,vis, adj_mat, edges, spring_dict):
     num_nodes=len(pose_x)
     nodes_x=copy.deepcopy(pose_x)
     nodes_y=copy.deepcopy(pose_y)    
@@ -23,9 +23,10 @@ def fitness(pose_x,pose_y,vis, adj_mat, edges, spring_coeff = 10):
 
     #flag used if individual is too big, set fitness to 0
     too_big_flag=0
-    too_close_val = 0.001
+    too_close_val = 0.0001
     too_close_flag = 0
-    intersection_flag=0
+    intersection_penalty = 0.1
+    intersections= [0]*len(edges)
     
     first_time_in_state=1
     for a in range(num_nodes): 
@@ -43,8 +44,8 @@ def fitness(pose_x,pose_y,vis, adj_mat, edges, spring_coeff = 10):
         for b in range(num_nodes): 
             if a<b:
                 spring_array[a][b]=0  
-                if a!=b and adj_mat[a][b]==1:            
-                    if random.uniform(0,1)>0.0:#between all nodes
+                if adj_mat[a][b]==1:            
+                    if True or random.uniform(0,1)>0.0:#between all nodes
                         spring_array[a][b]=math.sqrt((nodes_x[a]-nodes_x[b])**2+(nodes_y[a]-nodes_y[b])**2)
             else:
                 spring_array[a][b]=spring_array[b][a]
@@ -89,12 +90,16 @@ def fitness(pose_x,pose_y,vis, adj_mat, edges, spring_coeff = 10):
             force_x[n]=0
             force_y[n]=0
             for k in range(num_nodes):
-                if n!=k:
+                if n<k:
                     if spring_array[n][k]!=0:
                         current_distance=math.sqrt((nodes_x[n]-nodes_x[k])**2+(nodes_y[n]-nodes_y[k])**2)
                         #print("current dist",current_distance)
                         rest_length=spring_array[n][k]
                         #print("rest",rest_length,"dist",current_distance)
+                        spring_coeff = 0
+                        if (n,k) in spring_dict: spring_coeff = spring_dict[(n,k)]
+                        else: spring_coeff = spring_dict[(k,n)]
+
                         force_mag=spring_coeff*(rest_length-current_distance)#negitive force pulls nodes together
                         f_x_component_norm=(nodes_x[n]-nodes_x[k])/current_distance
                         f_y_component_norm=(nodes_y[n]-nodes_y[k])/current_distance
@@ -115,7 +120,6 @@ def fitness(pose_x,pose_y,vis, adj_mat, edges, spring_coeff = 10):
                         too_big_flag=1
                     if a!=b and distance_state0[a][b]< too_close_val:
                         too_close_flag = 1  
-            if not utils.is_planar(nodes_x, nodes_y, edges): return 0            
             if plotRealTime :
                 # print(nodes_x)
                 # print(nodes_y)
@@ -165,7 +169,6 @@ def fitness(pose_x,pose_y,vis, adj_mat, edges, spring_coeff = 10):
                         too_big_flag=1
                     if a!=b and distance_state0[a][b]< too_close_val:
                         too_close_flag = 1     
-            if not utils.is_planar(nodes_x, nodes_y, edges): return 0      
 
             if plotRealTime :           #print out image
 
@@ -218,7 +221,7 @@ def fitness(pose_x,pose_y,vis, adj_mat, edges, spring_coeff = 10):
         if state==0:#expanding
             a,b = spring_points    
             current_distance=math.sqrt((nodes_x[a]-nodes_x[b])**2+(nodes_y[a]-nodes_y[b])**2)
-            force_mag=-spring_coeff*(.1-current_distance)#negitive force pulls nodes together   
+            force_mag=-spring_dict[(a,b)]*(.1-current_distance)#negitive force pulls nodes together   
             f_x_component_norm=(nodes_x[a]-nodes_x[b])/current_distance
             f_y_component_norm=(nodes_y[a]-nodes_y[b])/current_distance 
             force_x[a] = force_x[a]-f_x_component_norm*force_mag
@@ -261,7 +264,10 @@ def fitness(pose_x,pose_y,vis, adj_mat, edges, spring_coeff = 10):
             nodes_x[n]=nodes_x[n]+vel_x[n]*dt
             nodes_y[n]=nodes_y[n]+vel_y[n]*dt
 
-        if not utils.is_planar(nodes_x, nodes_y, edges): return 0    
+        # if not utils.is_planar(nodes_x, nodes_y, edges): return 0
+        
+        intersections = utils.count_intersects(nodes_x, nodes_y, edges, intersections)
+
 
 
 
@@ -330,10 +336,18 @@ def fitness(pose_x,pose_y,vis, adj_mat, edges, spring_coeff = 10):
 
 
     #print("distance",dist_diff01,dist_diff02,dist_diff12)
-
+    intersection_count = sum(intersections)
 
     #too_big_flag=0
-    if too_big_flag==0 and kill==0 and intersection_flag==0 and too_close_flag == 0:
+    too_close_penalty = 1
+    if too_close_flag: too_close_penalty = 0.25
+    dist_diff01*=too_close_penalty
+    if too_big_flag==0 and kill==0:
+        if intersection_count>0:
+            percent_planar = ((len(edges)-intersection_count)/len(edges))
+            if percent_planar == 0: percent_planar = 1/len(edges)
+            if plotRealTime: print(percent_planar)
+            return intersection_penalty * dist_diff01 * percent_planar
         return dist_diff01
     else:
         return 0

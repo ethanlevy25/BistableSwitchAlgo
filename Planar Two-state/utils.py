@@ -56,3 +56,21 @@ def is_planar(nodes_x, nodes_y, edges):
             if intersect(a,b,c,d): return False
     return True        
 
+def count_intersects(nodes_x, nodes_y, edges, intersections):
+    for i in range(len(edges)):
+        if intersections[i]: continue
+        a = (nodes_x[edges[i][0]], nodes_y[edges[i][0]])
+        b = (nodes_x[edges[i][1]], nodes_y[edges[i][1]])
+        for ii in range(len(edges)):
+            if i == ii: continue
+            c = (nodes_x[edges[ii][0]], nodes_y[edges[ii][0]])
+            d = (nodes_x[edges[ii][1]], nodes_y[edges[ii][1]])
+            if intersect(a,b,c,d):
+                intersections[i] = 1
+                intersections[ii] = 1
+                break
+    return intersections        
+
+
+            
+

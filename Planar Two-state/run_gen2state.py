@@ -13,7 +13,7 @@ from datetime import datetime
 
 
 population_size=20 #number of individuals in populatoin
-generations=10 #number of generations to run
+generations=5 #number of generations to run
 
 spring_min = 5
 spring_max = 15
@@ -33,38 +33,41 @@ alpha=.1#learning rate
 
 #generate random population
 for i in range(population_size):
+    num_nodes=4
+
     nodes_x=[]
     nodes_y=[]
-    
-    num_nodes=4
     edges=[]
     adjacency_matrix = [[0 for j in range(num_nodes)] for i in range(num_nodes)]
+    springs = {}
 
 
+    created = False
+    
+    while not created or measure_fitness_2state.fitness(nodes_x, nodes_y, False, adjacency_matrix, edges, springs) == 0:
+        created = True
+        nodes_x=[]
+        nodes_y=[]
+        edges=[]
+        adjacency_matrix = [[0 for j in range(num_nodes)] for i in range(num_nodes)]
+        
+        for a in range(num_nodes): 
+            nodes_x.append(random.uniform(0,1)+.5)
+            nodes_y.append(random.uniform(0,1)+.5)
 
-    for a in range(num_nodes): 
-        nodes_x.append(random.uniform(0,1)+.5)
-        nodes_y.append(random.uniform(0,1)+.5)
-
-    # while not utils.connected(adjacency_matrix):
-    #     node1, node2 = random.randint(0, num_nodes-1), random.randint(0, num_nodes-1)
-    #     if node1 == node2 or adjacency_matrix[node1][node2] == 1 or utils.intersects_with_any(node1, node2, nodes_x, nodes_y, edges):
-    #         continue
-    #     adjacency_matrix[node1][node2] = 1
-    #     adjacency_matrix[node2][node1] = 1
-    #     edges.append((node1, node2))
 
     #for each node in the graph, adds an edge from it to every other node as long as the edge wouldn't create an intersection
-    for node1 in range(num_nodes):
-        for node2 in range(num_nodes):
-            #checks for: trying to make edge with itself, edge already created, or intersection created
-            if node1 == node2 or adjacency_matrix[node1][node2] == 1 or utils.intersects_with_any(node1, node2, nodes_x, nodes_y, edges):
-                continue
-            adjacency_matrix[node1][node2] = 1
-            adjacency_matrix[node2][node1] = 1
-            edges.append((node1, node2))
+        for node1 in range(num_nodes):
+            for node2 in range(num_nodes):
+                #checks for: trying to make edge with itself, edge already created, or intersection created
+                if node1 == node2 or adjacency_matrix[node1][node2] == 1 or utils.intersects_with_any(node1, node2, nodes_x, nodes_y, edges):
+                    continue
+                adjacency_matrix[node1][node2] = 1
+                adjacency_matrix[node2][node1] = 1
+                edges.append((node1, node2))
+                springs[(node1,node2)] = random.uniform(spring_min, spring_max)
 
-    population_springs.append(random.uniform(spring_min, spring_max))
+    population_springs.append(springs)
     population_x.append(nodes_x)
     population_y.append(nodes_y)
     population_edges.append(edges)
@@ -106,6 +109,8 @@ for g in range(generations):
         
         # print(fitness_values)
         print("best found is ",best_found,"location",best_location,"total fitness=",total_fitness,"alpha",alpha)
+        # print("0 count: ", fitness_values.count(0))
+        # print("fitness vals", fitness_values)
         
         #generate next generation
         for k in range(population_size-1):
@@ -141,30 +146,18 @@ for g in range(generations):
                     child_y.append(population_y[sample2][sp])
             
             adjacency_matrix = [[0 for j in range(num_nodes)] for i in range(num_nodes)]
-            edges = []
-            # possible_edges = []
+            edges = [] 
+            springs = {}
+
             # for edge in population_edges[sample1]:
-            #     if edge[0] < split or edge[1] < split:
-            #         possible_edges.append(edge)
+            #     if edge[0] <sp or edge[1] < sp:
+            #         edges.append(edge)
+            #         springs[edge] = population_springs[sample1][edge]
+
             # for edge in population_edges[sample2]:
-            #     if edge[0] >= split or edge[1] >= split:
-            #         possible_edges.append(edge)
-
-
-            # for edge in possible_edges:
-            #     if edge in edges or utils.intersects_with_any(edge[0], edge[1], child_x, child_y, possible_edges):
-            #         continue
-            #     adjacency_matrix[edge[0]][edge[1]] = 1
-            #     adjacency_matrix[edge[1]][edge[0]] = 1
-            #     edges.append(edge)
-
-            # while not utils.connected(adjacency_matrix):
-            #     node1, node2 = random.randint(0, num_nodes-1), random.randint(0, num_nodes-1)
-            #     if node1 == node2 or adjacency_matrix[node1][node2] == 1 or utils.intersects_with_any(node1, node2, nodes_x, nodes_y, edges):
-            #         continue
-            #     adjacency_matrix[node1][node2] = 1
-            #     adjacency_matrix[node2][node1] = 1
-            #     edges.append((node1, node2))  
+            #     if edge not in edges and (edge[0] >= sp or edge[1]>=sp):
+            #         edges.append(edge)
+            #         springs[edge] = population_springs[sample2][edge]
 
             for node1 in range(num_nodes):
                 for node2 in range(num_nodes):
@@ -172,14 +165,20 @@ for g in range(generations):
                         continue
                     adjacency_matrix[node1][node2] = 1
                     adjacency_matrix[node2][node1] = 1
-                    edges.append((node1, node2))    
+                    edge = (node1, node2)
+                    edges.append(edge)
+                    if (node1, node2) in population_edges[sample1]:
+                        springs[edge] = population_springs[sample1][edge]
+                    elif (node1, node2) in population_edges[sample2]:
+                        springs[edge] = population_springs[sample2][edge]
+                    else:
+                        springs[(node1, node2)] = random.uniform(spring_min, spring_max)
 
-            new_spring_coefficient = split/num_nodes*population_springs[sample1] + (1-split/num_nodes)*population_springs[sample2]
             new_population_x.append(copy.deepcopy(child_x))
             new_population_y.append(copy.deepcopy(child_y))
             new_population_edges.append(copy.deepcopy(edges))
             new_population_matrices.append(copy.deepcopy(adjacency_matrix))
-            new_population_springs.append(new_spring_coefficient)
+            new_population_springs.append(springs)
             
        
 
@@ -217,7 +216,7 @@ for g in range(generations):
                     temp_nodes_y[p] = temp_y
                     if utils.is_planar(population_x[k], temp_nodes_y, population_edges[k]):
                         population_y[k][p] = temp_y
-            if random.uniform(0,1)>.5:
+            if random.uniform(0,1)>0.5:
                 gradient2state.gradient_update(population_x[k],population_y[k], population_matrices[k], population_edges[k], population_springs[k])
 
 
