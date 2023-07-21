@@ -90,7 +90,7 @@ def fitness(pose_x,pose_y,vis, adj_mat, edges, spring_dict):
             force_x[n]=0
             force_y[n]=0
             for k in range(num_nodes):
-                if n<k:
+                if n!=k:
                     if spring_array[n][k]!=0:
                         current_distance=math.sqrt((nodes_x[n]-nodes_x[k])**2+(nodes_y[n]-nodes_y[k])**2)
                         #print("current dist",current_distance)
