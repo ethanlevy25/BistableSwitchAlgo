@@ -118,7 +118,7 @@ def fitness(pose_x,pose_y,vis, adj_mat, edges, spring_dict):
                     distance_state0[a][b]=math.sqrt((nodes_x[a]-nodes_x[b])**2+(nodes_y[a]-nodes_y[b])**2)
                     if distance_state0[a][b]>0.95:
                         too_big_flag=1
-                    if a!=b and distance_state0[a][b]< too_close_val:
+                    if a!=b and distance_state0[a][b] < too_close_val:
                         too_close_flag = 1  
             if plotRealTime :
                 # print(nodes_x)

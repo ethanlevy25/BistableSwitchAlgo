@@ -1,4 +1,5 @@
 #include <stdbool.h>
+#include <stdlib.h>
 
 bool connected(bool** adj_mat, int size);
 bool ccw(double* A, double* B, double* C);
@@ -8,12 +9,16 @@ bool is_planar(double* nodes_x, double* nodes_y, int** edges, int edge_count);
 void count_intersects(double* nodes_x, double* nodes_y, int** edges, int edge_count, bool* intersections);
 
 bool connected(bool** adj_mat, int size){
-    int stack[size];
+    int* stack = (int*)malloc(size * sizeof(int));
+    if (!stack) {
+        exit(1);
+    }   
     int stack_ptr = 0;
-    bool visited[size];
-    memset(visited, 0, sizeof(visited));
-
-
+    
+    bool* visited = (bool*)calloc(size, sizeof(bool));
+    if (!visited) {
+        exit(1);
+    }   
     stack[stack_ptr++] = 0;
 
     int visited_count = 0;
@@ -33,7 +38,8 @@ bool connected(bool** adj_mat, int size){
         }
 
     }
-
+    free(stack);
+    free(visited);
     return size == visited_count;
 
 }
@@ -111,9 +117,3 @@ void count_intersects(double* nodes_x, double* nodes_y, int** edges, int edge_co
 
     } 
 }
-
-
-
-
-
-
