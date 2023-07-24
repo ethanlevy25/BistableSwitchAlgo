@@ -48,7 +48,7 @@ void gradient_update(double* nodes_x, double* nodes_y, bool** adj_mat, int num_n
             if (temp_fit > best_value){
                 best_value = temp_fit;
                 memcpy(best_x, temp_x, sizeof(double)*num_nodes);
-                memcpy(best_y, temp_y, sizeof(double)*num_nodes));
+                memcpy(best_y, temp_y, sizeof(double)*num_nodes);
             }
 
             temp_y[a] -= 2*step;

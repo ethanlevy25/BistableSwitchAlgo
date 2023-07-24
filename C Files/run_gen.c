@@ -79,7 +79,7 @@ int main(void){
             exit(1);
         }
         for (int i = 0; i < num_nodes; i++){
-            adj_mat[i] = (bool*) calloc(sizeof(bool)*num_nodes);
+            adj_mat[i] = (bool*) calloc(num_nodes, sizeof(bool));
             if (!adj_mat[i]){
                 exit(1);
             }
@@ -122,6 +122,7 @@ int main(void){
 
     }
     for (int g = 0; g < generations; g++){
+        printf("Generation %d\n", g);
         for (int i = 0; i < population_size; i++){
             fitness_values[i] = fitness(population_x[i], population_y[i], num_nodes, false, population_matrices[i], population_edges[i], population_edgecounts[i], population_springs[i]);
         
@@ -175,7 +176,8 @@ int main(void){
                 alpha = 0.1;
             }
 
-            //PRINT BEST FOUND
+            printf("best found is %f location %d total fitness=%f alpha %f\n", best_found, best_location, total_fitness, alpha);
+
 
             for (int k = 0; k < population_size-1; k++){
                 double sample_point1;// = random(0,total_fitness);
@@ -293,15 +295,65 @@ int main(void){
 
 
                 }
+                
+                new_population_x[population_size-1] = population_x[best_location];
+                new_population_y[population_size-1] = population_y[best_location];
+                new_population_matrices[population_size-1] = population_matrices[best_location];
+                new_population_edges[population_size-1] = population_edges[best_location];
+                new_population_springs[population_size-1] = population_springs[best_location];
+                new_population_edgecounts[population_size-1] = population_edgecounts[best_location];
+                for (int i = 0; i < population_size; i++){
+                    if (i != best_location){
+                        free(population_x[i]);
+                        free(population_y[i]);
+                        free(population_matrices[i]);
+                        free(population_edges[i]);
+                        free(population_springs[i]);
+                    }
+                    
+                    population_x[i] = new_population_x[i];
+                    population_y[i] = new_population_y[i];
+                    population_matrices[i] = new_population_matrices[i];
+                    population_edges[i] = new_population_edges[i];
+                    population_springs[i] = new_population_springs[i];
+                    population_edgecounts[i] = new_population_edgecounts[i];
+                }
+
+                for (int i = 0; i < population_size-1; i++){
+                    for (int n = 0; n < num_nodes; i++){
+                        if (rand() > 0.75 * RAND_MAX){
+                            population_x[i][n]+=randomDouble(-1*alpha, alpha);
+                        }
+                        if (rand() > 0.75 * RAND_MAX){
+                            population_y[i][n]+=randomDouble(-1*alpha, alpha);
+                        }
+                    }
+                    if (rand() > 0.5 * RAND_MAX){
+                        gradient_update(population_x[i], population_y[i], population_matrices[i], num_nodes, population_edges[i], population_edgecounts[i], population_springs[i]);
+                    }
+                }
 
                 
 
             }
-        }    
+        }
+
             
 
 
     }
+
+
+    double max_fitness = 0;
+    int max_i = 0;
+    for (int i = 0; i < population_size; i++){
+        if (fitness_values[i]>max_fitness){
+            max_fitness = fitness_values[i];
+            max_i = i;
+        }
+    }
+
+    print("Max fitness: %f\n", max_fitness);
 
     
 
