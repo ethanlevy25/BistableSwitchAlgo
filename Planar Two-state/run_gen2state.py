@@ -161,7 +161,7 @@ for g in range(generations):
 
             for node1 in range(num_nodes):
                 for node2 in range(num_nodes):
-                    if node1 == node2 or adjacency_matrix[node1][node2] == 1 or utils.intersects_with_any(node1, node2, nodes_x, nodes_y, edges):
+                    if node1 == node2 or adjacency_matrix[node1][node2] == 1 or utils.intersects_with_any(node1, node2, child_x, child_y, edges):
                         continue
                     adjacency_matrix[node1][node2] = 1
                     adjacency_matrix[node2][node1] = 1

@@ -8,5 +8,6 @@ double* allocateDoubleArray(int num_elements);
 double** allocateDouble2DArray(int num_elements);
 double* callocDoubleArray(int num_elements);
 double** callocDouble2DArray(int num_elements);
+double*** allocateDouble3DArray(int num_arrays, int num_elements);
 
 #endif // ALLOCATION_UTILS_H

@@ -27,6 +27,7 @@ double fitness(double* pos_x, double* pos_y, int num_nodes, bool vis, bool** adj
     double* force_x = callocDoubleArray(num_nodes);
     double* force_y = callocDoubleArray(num_nodes);
 
+    //Initializes spring_grid
     double** spring_grid = callocDouble2DArray(num_nodes);
     for (int i = 0; i < edge_count; i++){
         int a = edges[i][0];
