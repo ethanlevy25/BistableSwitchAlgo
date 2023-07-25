@@ -2,9 +2,10 @@
 #define GRADIENT_H
 
 #include <stdbool.h>
-#include <utils.h>
+#include "utils.h"
 #include <math.h>
 #include <stdlib.h>
+#include "allocation_utils.h"
 
 #define MAX_ITERS 100000
 

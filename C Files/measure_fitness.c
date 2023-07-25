@@ -1,9 +1,10 @@
 #include <stdbool.h>
-#include <utils.h>
+#include "utils.h"
 #include <math.h>
 #include <stdlib.h>
 #include <stdio.h>
-#include <allocation_utils.h>
+#include "allocation_utils.h"
+#include <string.h>
 double fitness(double* pos_x, double* pos_y, int num_nodes, bool vis, bool** adj_mat, int** edges, int edge_count, double* spring_dict);
 
 double fitness(double* pos_x, double* pos_y, int num_nodes, bool vis, bool** adj_mat, int** edges, int edge_count, double* spring_dict){
@@ -167,9 +168,9 @@ double fitness(double* pos_x, double* pos_y, int num_nodes, bool vis, bool** adj
 
             double dx = nodes_x[a] - nodes_x[b];
             double dy = nodes_y[a] - nodes_y[b];
-            double cur_dist = qrt(dx*dx + dy*dy);
+            double cur_dist = sqrt(dx*dx + dy*dy);
 
-            double force_mag = -1 * spring_grid[a][b] * (0.1 - cur_dist);
+            double force_mag = -1 * spring_array[a][b] * (0.1 - cur_dist);
             double f_x_component_norm = dx / cur_dist;
             double f_y_component_norm = dy / cur_dist;
             force_x[a] -= f_x_component_norm*force_mag;
@@ -260,14 +261,15 @@ double fitness(double* pos_x, double* pos_y, int num_nodes, bool vis, bool** adj
     free(spring_grid);
     free(distance_state0);
     free(distance_state1);
+
     
     if (!too_big_flag && !kill){
         if (intersection_count > 0){
             double percent_planar = ((double) edge_count - (double) intersection_count) / (double) edge_count;
             if (percent_planar == 0){
                 percent_planar = 1/(double) edge_count * 0.5;
-                return intersection_penalty * dist_diff * percent_planar;
             }
+            return intersection_penalty * dist_diff * percent_planar;
         }
         return dist_diff;
     }

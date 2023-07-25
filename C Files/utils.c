@@ -1,5 +1,6 @@
 #include <stdbool.h>
 #include <stdlib.h>
+#include "mt19937ar.h"
 
 bool connected(bool** adj_mat, int size);
 bool ccw(double* A, double* B, double* C);
@@ -8,6 +9,7 @@ bool intersects_with_any(int node1, int node2, double* nodes_x, double* nodes_y,
 bool is_planar(double* nodes_x, double* nodes_y, int** edges, int edge_count);
 void count_intersects(double* nodes_x, double* nodes_y, int** edges, int edge_count, bool* intersections);
 double randomDouble(double min, double max);
+int getRandInt(int min, int max);
 
 bool connected(bool** adj_mat, int size){
     int* stack = (int*)malloc(size * sizeof(int));
@@ -50,6 +52,10 @@ bool ccw(double* a, double* b, double* c){
 }
 
 bool intersect(double* a, double* b, double* c, double* d){
+    if ((a[0] == c[0] && a[1] == c[1]) || (a[0] == d[0] && a[1] == d[1]) ||
+        (b[0] == c[0] && b[1] == c[1]) || (b[0] == d[0] && b[1] == d[1])) {
+        return false; 
+    }
     bool ccw_acd = ccw(a, c, d);
     bool ccw_bcd = ccw(b, c, d);
 
@@ -121,6 +127,33 @@ void count_intersects(double* nodes_x, double* nodes_y, int** edges, int edge_co
 
 
 double randomDouble(double min, double max) {
-    return (double)rand() / RAND_MAX * (max - min) + min;
+    // Ensure the arguments are valid
+    if (min > max) {
+        // Swap min and max
+        double temp = min;
+        min = max;
+        max = temp;
+    }
+
+    // Use the Mersenne Twister to get a random double in [0, 1)
+    double scale = max - min;
+    double shift = min;
+    
+    return genrand_real1() * scale + shift; 
+}
+
+int getRandInt(int min, int max){
+    if (min > max) {
+        // Swap min and max
+        int temp = min;
+        min = max;
+        max = temp;
+    }
+
+    // Use the Mersenne Twister to get a random integer
+    int range = max - min + 1;
+    int random_value = genrand_int32() % range;
+    
+    return min + random_value;
 }
 

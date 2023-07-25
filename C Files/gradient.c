@@ -1,8 +1,9 @@
 #include <math.h>
-#include <measure_fitness.h>
+#include "measure_fitness.h"
 #include <stdbool.h>
 #include <stdlib.h>
-#include <allocation_utils.h>
+#include "allocation_utils.h"
+#include <string.h>
 
 #define MAX_ITERS 100000
 void gradient_update(double* nodes_x, double* nodes_y, bool** adj_mat, int num_nodes, int** edges, int edge_count, double* springs);
@@ -58,6 +59,8 @@ void gradient_update(double* nodes_x, double* nodes_y, bool** adj_mat, int num_n
                 memcpy(best_x, temp_x, sizeof(double)*num_nodes);
                 memcpy(best_y, temp_y, sizeof(double)*num_nodes);
             }
+            free(temp_x);
+            free(temp_y);
         }
         if (best_value <= current_fit){
                 break;

@@ -3,7 +3,7 @@
 #define MEASURE_FITNESS_H
 
 #include <stdbool.h>
-#include <utils.h>
+#include "utils.h"
 #include <math.h>
 #include <stdlib.h>
 

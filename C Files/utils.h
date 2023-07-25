@@ -11,5 +11,6 @@ bool intersects_with_any(int node1, int node2, double* nodes_x, double* nodes_y,
 bool is_planar(double* nodes_x, double* nodes_y, int** edges, int edge_count);
 void count_intersects(double* nodes_x, double* nodes_y, int** edges, int edge_count, bool* intersections);
 double randomDouble(double min, double max);
+int getRandInt(int min, int max);
 
 #endif // UTILS_H

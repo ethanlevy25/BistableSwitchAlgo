@@ -11,10 +11,11 @@ double* allocateDoubleArray(int num_elements) {
     if (!ptr){
         exit(1);
     }
+    return ptr;
 }
 
 double** allocateDouble2DArray(int num_elements) {
-    double** array2D = (double**) allocateMemory(sizeof(double*) * num_elements);
+    double** array2D = (double**) malloc(sizeof(double*)*num_elements);
     if (!array2D){
         exit(1);
     }

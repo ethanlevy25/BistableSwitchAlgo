@@ -1,5 +1,12 @@
 {
   "files.associations": {
-    "random": "c"
+    "random": "c",
+    "allocation_utils.h": "c",
+    "array": "c",
+    "istream": "c",
+    "locale": "c",
+    "memory": "c",
+    "tuple": "c",
+    "variant": "c"
   }
 }
