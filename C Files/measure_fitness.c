@@ -92,6 +92,15 @@ double fitness(double* pos_x, double* pos_y, int num_nodes, bool vis, bool** adj
     int stability_counter = 0;
 
     for (int time_steps = 0; time_steps < Nt; time_steps++){
+        if (vis && time_steps % 15 == 0){
+            for (int i = 0; i < num_nodes; i++){
+                printf("(%f, %f)", nodes_x[i], nodes_y[i]);
+                if (i < num_nodes-1){
+                    printf(" | ");
+                }
+            }
+            printf("\n");
+        }
         if ((Nt-2) < time_steps){
             kill = true;
             end_loop = true;
@@ -159,6 +168,7 @@ double fitness(double* pos_x, double* pos_y, int num_nodes, bool vis, bool** adj
 
                 }
             }
+            end_loop = true;
         }
 
         //actuate one spring if expanding
@@ -262,7 +272,16 @@ double fitness(double* pos_x, double* pos_y, int num_nodes, bool vis, bool** adj
     free(distance_state0);
     free(distance_state1);
 
-    
+    if (vis){
+        printf("%f\n", dist_diff);
+        printf("%d\n", intersection_count);
+        if (too_big_flag){
+            printf("TOO BIG");
+        }
+        if (kill){
+            printf("KILL");
+        }
+    }
     if (!too_big_flag && !kill){
         if (intersection_count > 0){
             double percent_planar = ((double) edge_count - (double) intersection_count) / (double) edge_count;

@@ -11,9 +11,9 @@
 
 
 int main(void){
-    int population_size = 20;
-    int generations = 10;
-    int num_nodes = 4;
+    int population_size = 100;
+    int generations = 100;
+    int num_nodes = 8;
 
     double spring_min = 5;
     double spring_max = 15;
@@ -178,7 +178,7 @@ int main(void){
                     best_location = i;
                 }
             }
-
+            printf("best found is %f location %d total fitness=%f alpha %f\n", best_found, best_location, total_fitness, alpha);
             if (best_location == population_size-1){
                 if (alpha < 2){
                     alpha+=0.1;
@@ -187,7 +187,7 @@ int main(void){
                 alpha = 0.1;
             }
 
-            printf("best found is %f location %d total fitness=%f alpha %f\n", best_found, best_location, total_fitness, alpha);
+            
 
 
             for (int k = 0; k < population_size-1; k++){
