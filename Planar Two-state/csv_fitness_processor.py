@@ -4,7 +4,7 @@ import measure_fitness_2state
 
 def process_and_run_fitness(csv_path):
     # Load the CSV data
-    data = pd.read_csv(csv_path)
+    data = pd.read_csv(csv_path, header = None)
 
     # Extract pose_x, pose_y, edges, and spring_dict from the CSV data
     nodes_x = data.iloc[:, 0].dropna().tolist()
@@ -26,6 +26,6 @@ def process_and_run_fitness(csv_path):
     return result
 
 if __name__ == "__main__":
-    csv_path = "YOUR_CSV_FILE_PATH_HERE.csv"
+    csv_path = input("Please enter the path to your CSV file: ")    
     result = process_and_run_fitness(csv_path)
     print("Fitness Result:", result)

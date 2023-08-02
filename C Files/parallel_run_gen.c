@@ -1,3 +1,4 @@
+#include <pthread.h>
 #include <stdlib.h>
 #include "utils.h"
 #include "gradient.h"
@@ -8,6 +9,69 @@
 #include <time.h>
 #include "allocation_utils.h"
 #include "mt19937ar.h"
+
+typedef struct {
+    int start;
+    int end;
+    double **population_x;
+    double **population_y;
+    int num_nodes;
+    bool ***population_matrices;
+    int ***population_edges;
+    int *population_edgecounts;
+    double **population_springs;
+    double *fitness_values;
+    double alpha;
+} ThreadArgs;
+
+#define NUM_THREADS 6
+
+void* calculate_fitness(void* args) {
+    ThreadArgs* threadArgs = (ThreadArgs*) args;
+
+    for (int i = threadArgs->start; i < threadArgs->end; i++) {
+        threadArgs->fitness_values[i] = fitness(
+            threadArgs->population_x[i], 
+            threadArgs->population_y[i], 
+            threadArgs->num_nodes, 
+            false, 
+            threadArgs->population_matrices[i], 
+            threadArgs->population_edges[i], 
+            threadArgs->population_edgecounts[i], 
+            threadArgs->population_springs[i]
+        );
+    }
+
+    return NULL;
+}
+
+void* update_population(void* args) {
+    ThreadArgs* threadArgs = (ThreadArgs*) args;
+
+    for (int i = threadArgs->start; i < threadArgs->end; i++) {
+        for (int n = 0; n < threadArgs->num_nodes; n++) {
+            if (genrand_real1() < 0.25) {
+                threadArgs->population_x[i][n] += randomDouble(-1 * threadArgs->alpha, threadArgs->alpha);
+            }
+            if (genrand_real1() < 0.25) {
+                threadArgs->population_y[i][n] += randomDouble(-1 * threadArgs->alpha, threadArgs->alpha);
+            }
+        }
+        if (genrand_real1() < 0.5) {
+            gradient_update(
+                threadArgs->population_x[i], 
+                threadArgs->population_y[i], 
+                threadArgs->population_matrices[i], 
+                threadArgs->num_nodes, 
+                threadArgs->population_edges[i], 
+                threadArgs->population_edgecounts[i], 
+                threadArgs->population_springs[i]
+            );
+        }
+    }
+
+    return NULL;
+}
 
 
 int main(void){
@@ -134,9 +198,31 @@ int main(void){
     }
     for (int g = 0; g < generations; g++){
         printf("Generation %d\n", g);
-        for (int i = 0; i < population_size; i++){
-            fitness_values[i] = fitness(population_x[i], population_y[i], num_nodes, false, population_matrices[i], population_edges[i], population_edgecounts[i], population_springs[i]);
-        }
+        
+    pthread_t threads[NUM_THREADS];
+    ThreadArgs threadArgs[NUM_THREADS];
+    int chunk_size = population_size / NUM_THREADS;
+
+    for (int t = 0; t < NUM_THREADS; t++) {
+        threadArgs[t].start = t * chunk_size;
+        threadArgs[t].end = (t == NUM_THREADS - 1) ? population_size : (t + 1) * chunk_size;
+        threadArgs[t].population_x = population_x;
+        threadArgs[t].population_y = population_y;
+        threadArgs[t].num_nodes = num_nodes;
+        threadArgs[t].population_matrices = population_matrices;
+        threadArgs[t].population_edges = population_edges;
+        threadArgs[t].population_edgecounts = population_edgecounts;
+        threadArgs[t].population_springs = population_springs;
+        threadArgs[t].fitness_values = fitness_values;
+        threadArgs[t].alpha = alpha;
+        
+        pthread_create(&threads[t], NULL, calculate_fitness, &threadArgs[t]);
+    }
+
+    for (int t = 0; t < NUM_THREADS; t++) {
+        pthread_join(threads[t], NULL);
+    }
+
         if (g < generations-1){
             double** new_population_x = (double**) malloc(sizeof(double*)*population_size);
             double** new_population_y = (double**) malloc(sizeof(double*)*population_size);
@@ -341,19 +427,18 @@ int main(void){
                     population_edgecounts[i] = new_population_edgecounts[i];
                 }
 
-                for (int i = 0; i < population_size-1; i++){
-                    for (int n = 0; n < num_nodes; n++){
-                        if (genrand_real1()< 0.25 ){
-                            population_x[i][n]+=randomDouble(-1*alpha, alpha);
-                        }
-                        if (genrand_real1() < 0.25){
-                            population_y[i][n]+=randomDouble(-1*alpha, alpha);
-                        }
-                    }
-                    if (genrand_real1() < 0.5){
-                        gradient_update(population_x[i], population_y[i], population_matrices[i], num_nodes, population_edges[i], population_edgecounts[i], population_springs[i]);
-                    }
-                }
+                
+    for (int t = 0; t < NUM_THREADS; t++) {
+        threadArgs[t].start = t * chunk_size;
+        threadArgs[t].end = (t == NUM_THREADS - 1) ? population_size - 1 : (t + 1) * chunk_size;
+        
+        pthread_create(&threads[t], NULL, update_population, &threadArgs[t]);
+    }
+
+    for (int t = 0; t < NUM_THREADS; t++) {
+        pthread_join(threads[t], NULL);
+    }
+
 
                 
 
