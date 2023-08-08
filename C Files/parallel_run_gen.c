@@ -435,6 +435,7 @@ int main(void){
         // Write edge values if within bounds
         if (i < best_edge_count) {
             fprintf(fp, "%d-%d,", population_edges[max_i][i][0], population_edges[max_i][i][1]);
+            fprintf(fp, "%f,", population_matrices[max_i][population_edges[max_i][i][0]][population_edges[max_i][i][1]]);
         } else {
             fprintf(fp, ",\n");
         }
