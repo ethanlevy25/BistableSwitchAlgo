@@ -5,9 +5,9 @@
 #include <stdio.h>
 #include "allocation_utils.h"
 #include <string.h>
-double fitness(double* pos_x, double* pos_y, int num_nodes, bool vis, bool** adj_mat, int** edges, int edge_count, double* spring_dict);
+double fitness(double* pos_x, double* pos_y, int num_nodes, bool vis, double** adj_mat, int** edges, int edge_count);
 
-double fitness(double* pos_x, double* pos_y, int num_nodes, bool vis, bool** adj_mat, int** edges, int edge_count, double* spring_dict){
+double fitness(double* pos_x, double* pos_y, int num_nodes, bool vis, double** adj_mat, int** edges, int edge_count){
     
     //Copies passed pos_x and pos_y values to nodes_x and nodes_y
     double* nodes_x = allocateDoubleArray(num_nodes);
@@ -29,13 +29,11 @@ double fitness(double* pos_x, double* pos_y, int num_nodes, bool vis, bool** adj
     double* force_y = callocDoubleArray(num_nodes);
 
     //Initializes spring_grid
-    double** spring_grid = callocDouble2DArray(num_nodes);
-    for (int i = 0; i < edge_count; i++){
-        int a = edges[i][0];
-        int b = edges[i][1];
-        spring_grid[a][b] = spring_dict[i];
-        spring_grid[b][a] = spring_dict[i];
+    double** spring_grid = allocateDouble2DArray(num_nodes);
+    for (int i = 0; i < num_nodes; i++){
+        memcpy(spring_grid[i], adj_mat[i], sizeof(double)*num_nodes);
     }
+    
 
     //saves the endpoints of edge 0 as the spring points (to be actuated)
     int spring_points[2];
@@ -65,7 +63,7 @@ double fitness(double* pos_x, double* pos_y, int num_nodes, bool vis, bool** adj
     for (int a = 0; a < num_nodes; a++){
         for (int b = 0; b < num_nodes; b++){
             if (a < b){
-                if (adj_mat[a][b]){
+                if (adj_mat[a][b] != 0){
                     double dx = nodes_x[a] - nodes_x[b];
                     double dy = nodes_y[a] - nodes_y[b];
                     spring_array[a][b] = sqrt(dx*dx + dy*dy);
@@ -111,7 +109,7 @@ double fitness(double* pos_x, double* pos_y, int num_nodes, bool vis, bool** adj
             force_x[n] = 0;
             force_y[n] = 0;
             for (int k = 0; k < num_nodes; k++){
-                if (n!=k && adj_mat[n][k]){
+                if (n!=k && adj_mat[n][k] != 0){
                     double dx = nodes_x[n] - nodes_x[k];
                     double dy = nodes_y[n] - nodes_y[k];
                     double cur_dist = sqrt(dx*dx + dy*dy);

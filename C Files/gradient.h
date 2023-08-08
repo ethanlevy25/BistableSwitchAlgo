@@ -9,6 +9,6 @@
 
 #define MAX_ITERS 100000
 
-void gradient_update(double* nodes_x, double* nodes_y, bool** adj_mat, int num_nodes, int** edges, int edge_count, double* springs);
+void gradient_update(double* nodes_x, double* nodes_y, double** adj_mat, int num_nodes, int** edges, int edge_count);
 
 #endif // GRADIENT_H

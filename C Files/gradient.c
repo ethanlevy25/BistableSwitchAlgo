@@ -6,10 +6,10 @@
 #include <string.h>
 
 #define MAX_ITERS 100000
-void gradient_update(double* nodes_x, double* nodes_y, bool** adj_mat, int num_nodes, int** edges, int edge_count, double* springs);
+void gradient_update(double* nodes_x, double* nodes_y, double** adj_mat, int num_nodes, int** edges, int edge_count);
 
-void gradient_update(double* nodes_x, double* nodes_y, bool** adj_mat, int num_nodes, int** edges, int edge_count, double* springs){
-    double current_fit = fitness(nodes_x, nodes_y, num_nodes, false, adj_mat, edges, edge_count, springs);
+void gradient_update(double* nodes_x, double* nodes_y, double** adj_mat, int num_nodes, int** edges, int edge_count){
+    double current_fit = fitness(nodes_x, nodes_y, num_nodes, false, adj_mat, edges, edge_count);
     double best_value = current_fit;
 
     double* best_x = allocateDoubleArray(num_nodes);
@@ -28,7 +28,7 @@ void gradient_update(double* nodes_x, double* nodes_y, bool** adj_mat, int num_n
             memcpy(temp_y, nodes_y, sizeof(double)*num_nodes);
 
             temp_x[a] += step;
-            double temp_fit = fitness(temp_x, temp_y, num_nodes, false, adj_mat, edges, edge_count, springs);
+            double temp_fit = fitness(temp_x, temp_y, num_nodes, false, adj_mat, edges, edge_count);
             if (temp_fit > best_value){
                 best_value = temp_fit;
                 memcpy(best_x, temp_x, sizeof(double)*num_nodes);
@@ -36,7 +36,7 @@ void gradient_update(double* nodes_x, double* nodes_y, bool** adj_mat, int num_n
             }
 
             temp_x[a] -= 2*step; // *2 to overcorrect for opposite last time
-            temp_fit = fitness(temp_x, temp_y, num_nodes, false, adj_mat, edges, edge_count, springs);
+            temp_fit = fitness(temp_x, temp_y, num_nodes, false, adj_mat, edges, edge_count);
             if (temp_fit > best_value){
                 best_value = temp_fit;
                 memcpy(best_x, temp_x, sizeof(double)*num_nodes);
@@ -45,7 +45,7 @@ void gradient_update(double* nodes_x, double* nodes_y, bool** adj_mat, int num_n
 
             temp_x[a] += step; // reset to base
             temp_y[a] += step;
-            temp_fit = fitness(temp_x, temp_y, num_nodes, false, adj_mat, edges, edge_count, springs);
+            temp_fit = fitness(temp_x, temp_y, num_nodes, false, adj_mat, edges, edge_count);
             if (temp_fit > best_value){
                 best_value = temp_fit;
                 memcpy(best_x, temp_x, sizeof(double)*num_nodes);
@@ -53,7 +53,7 @@ void gradient_update(double* nodes_x, double* nodes_y, bool** adj_mat, int num_n
             }
 
             temp_y[a] -= 2*step;
-            temp_fit = fitness(temp_x, temp_y, num_nodes, false, adj_mat, edges, edge_count, springs);
+            temp_fit = fitness(temp_x, temp_y, num_nodes, false, adj_mat, edges, edge_count);
             if (temp_fit > best_value){
                 best_value = temp_fit;
                 memcpy(best_x, temp_x, sizeof(double)*num_nodes);
